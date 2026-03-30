@@ -40,8 +40,8 @@ import datetime
 # PAGE CONFIG
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="GC Predictor · Quant v12",
-    page_icon="📊",
+    page_title="Golden Cross Predictor",
+    page_icon="�",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -51,121 +51,144 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
   :root {
-    --bg:#03050d; --bg1:#080c18; --bg2:#0d1020;
-    --border:#151c30; --border2:#1e2840;
-    --text:#d4ddf5; --text2:#7a8aaa; --text3:#3d4d6a;
-    --green:#00e5a0; --red:#f04060; --amber:#f5a623;
+    --bg:#0a0e1a; --bg1:#111827; --bg2:#1a2235;
+    --border:#2a3550; --border2:#334060;
+    --text:#e8edf8; --text2:#9aa5c0; --text3:#5a6a8a;
+    --green:#00c97a; --red:#e84060; --amber:#f0a020;
     --blue:#4da6ff; --purple:#a78bfa;
-    --mono:'JetBrains Mono',monospace; --sans:'DM Sans',sans-serif;
+    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
   }
-  html,body,[class*="css"]          { font-family:var(--sans); }
+  html,body,[class*="css"]          { font-family:var(--sans); font-size:15px; }
   .stApp                            { background:var(--bg); color:var(--text); }
-  section[data-testid="stSidebar"]  { background:var(--bg1)!important; border-right:1px solid var(--border); }
-  .block-container                  { padding-top:1.2rem; padding-bottom:2rem; }
+  section[data-testid="stSidebar"]  { background:var(--bg1)!important; border-right:2px solid var(--border); }
+  .block-container                  { padding-top:1.5rem; padding-bottom:2rem; max-width:1400px; }
   #MainMenu,footer,header           { visibility:hidden; }
+
+  /* ── Cards ─────────────────────────────────────────────────────────────── */
   .qcard {
     background:var(--bg1); border:1px solid var(--border);
-    border-radius:8px; padding:14px 18px; margin-bottom:10px;
+    border-radius:10px; padding:18px 20px; margin-bottom:12px;
     position:relative; overflow:hidden;
   }
   .qcard::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:2px;
-    background:var(--accent,var(--blue)); opacity:.6;
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:var(--accent,var(--blue)); opacity:.8;
   }
-  .qcard .qlabel { font-family:var(--mono); font-size:10px; color:var(--text3);
-                   text-transform:uppercase; letter-spacing:.1em; margin-bottom:5px; }
-  .qcard .qval   { font-size:26px; font-weight:700; line-height:1; color:var(--accent,var(--text)); }
-  .qcard .qsub   { font-family:var(--mono); font-size:10px; color:var(--text2); margin-top:4px; }
-  .badge-bullish { background:rgba(0,229,160,.12);  color:#00e5a0; border:1px solid rgba(0,229,160,.3); }
-  .badge-bearish { background:rgba(240,64,96,.12);   color:#f04060; border:1px solid rgba(240,64,96,.3); }
-  .badge-caution { background:rgba(245,166,35,.12);  color:#f5a623; border:1px solid rgba(245,166,35,.3); }
-  .badge-neutral { background:rgba(77,166,255,.10);  color:#7a8aaa; border:1px solid rgba(77,166,255,.2); }
-  .badge { border-radius:6px; padding:7px 14px; font-weight:600; font-size:13px; display:inline-block; }
-  .bar-wrap { background:var(--border); border-radius:3px; height:5px; margin-top:5px; }
-  .bar-fill { height:5px; border-radius:3px; }
-  .sec-hdr {
-    font-family:var(--mono); font-size:10px; color:var(--text3);
-    text-transform:uppercase; letter-spacing:.14em;
-    padding-bottom:8px; border-bottom:1px solid var(--border); margin:20px 0 14px;
+  .qcard .qlabel {
+    font-family:var(--mono); font-size:12px; color:var(--text3);
+    text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px;
+    display:flex; align-items:center;
   }
+  .qcard .qval   { font-size:28px; font-weight:700; line-height:1.1; color:var(--accent,var(--text)); }
+  .qcard .qsub   { font-size:13px; color:var(--text2); margin-top:6px; line-height:1.4; }
+
+  /* ── Badges ─────────────────────────────────────────────────────────────── */
+  .badge-bullish { background:rgba(0,201,122,.15);  color:#00c97a; border:1px solid rgba(0,201,122,.4); }
+  .badge-bearish { background:rgba(232,64,96,.15);  color:#e84060; border:1px solid rgba(232,64,96,.4); }
+  .badge-caution { background:rgba(240,160,32,.15); color:#f0a020; border:1px solid rgba(240,160,32,.4); }
+  .badge-neutral { background:rgba(77,166,255,.12); color:#9aa5c0; border:1px solid rgba(77,166,255,.25); }
+  .badge { border-radius:8px; padding:8px 16px; font-weight:600; font-size:14px; display:inline-block; }
+
+  /* ── Pills ──────────────────────────────────────────────────────────────── */
   .risk-pill {
-    display:inline-block; font-family:var(--mono); font-size:11px;
-    padding:3px 9px; border-radius:20px; margin-right:6px; margin-bottom:4px;
+    display:inline-block; font-size:13px; font-weight:500;
+    padding:5px 12px; border-radius:20px; margin-right:8px; margin-bottom:6px;
   }
-  .qtable { width:100%; border-collapse:collapse; font-size:12px; font-family:var(--mono); }
-  .qtable th { background:var(--bg2); color:var(--text3); font-size:9px;
-               text-transform:uppercase; letter-spacing:.08em;
-               padding:7px 10px; border-bottom:1px solid var(--border); text-align:left; }
-  .qtable td { padding:7px 10px; border-bottom:1px solid var(--border2); color:var(--text); }
+
+  /* ── Section headers ────────────────────────────────────────────────────── */
+  .sec-hdr {
+    font-size:13px; font-weight:600; color:var(--text2);
+    text-transform:uppercase; letter-spacing:.06em;
+    padding-bottom:10px; border-bottom:2px solid var(--border);
+    margin:24px 0 16px;
+  }
+
+  /* ── Tables ─────────────────────────────────────────────────────────────── */
+  .qtable { width:100%; border-collapse:collapse; font-size:14px; }
+  .qtable th { background:var(--bg2); color:var(--text2); font-size:12px;
+               font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+               padding:10px 14px; border-bottom:2px solid var(--border); text-align:left; }
+  .qtable td { padding:10px 14px; border-bottom:1px solid var(--border2); color:var(--text); font-size:14px; }
   .qtable tr:hover td { background:var(--bg2); }
+
+  /* ── Inputs ─────────────────────────────────────────────────────────────── */
   .stTextInput>div>div>input,
   .stTextArea>div>div>textarea {
     background:var(--bg2)!important; border:1px solid var(--border)!important;
-    color:var(--text)!important; font-family:var(--mono)!important; font-size:12px!important;
+    color:var(--text)!important; font-size:15px!important;
+    border-radius:8px!important; padding:10px 14px!important;
   }
-  .stTabs [data-baseweb="tab-list"] { background:var(--bg1); border-bottom:1px solid var(--border); gap:0; }
-  .stTabs [data-baseweb="tab"]      { padding:8px 18px; font-family:var(--mono); font-size:11px; color:var(--text2); }
-  .stTabs [aria-selected="true"]    { color:var(--green)!important; border-bottom:2px solid var(--green)!important; }
-  ::-webkit-scrollbar { width:5px; height:5px; }
-  ::-webkit-scrollbar-track { background:var(--bg); }
-  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
-  .warn-box { background:rgba(245,166,35,.08); border:1px solid rgba(245,166,35,.25);
-              border-radius:6px; padding:10px 14px; font-family:var(--mono); font-size:11px;
-              color:var(--amber); margin:8px 0; }
 
-  /* ── Info button & tooltip ─────────────────────────────────────────────── */
+  /* ── Tabs ───────────────────────────────────────────────────────────────── */
+  .stTabs [data-baseweb="tab-list"] { background:var(--bg1); border-bottom:2px solid var(--border); gap:4px; }
+  .stTabs [data-baseweb="tab"]      { padding:12px 22px; font-size:15px; font-weight:500; color:var(--text2); }
+  .stTabs [aria-selected="true"]    { color:var(--green)!important; border-bottom:3px solid var(--green)!important; font-weight:700!important; }
+
+  /* ── Warn box ───────────────────────────────────────────────────────────── */
+  .warn-box {
+    background:rgba(240,160,32,.10); border:1px solid rgba(240,160,32,.35);
+    border-radius:8px; padding:14px 18px; font-size:14px;
+    color:var(--amber); margin:10px 0; line-height:1.5;
+  }
+
+  /* ── Scrollbar ──────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+
+  /* ── Sidebar labels ─────────────────────────────────────────────────────── */
+  section[data-testid="stSidebar"] label,
+  section[data-testid="stSidebar"] .stSlider label,
+  section[data-testid="stSidebar"] p {
+    font-size:14px !important; color:var(--text) !important;
+  }
+  section[data-testid="stSidebar"] .stSlider [data-testid="stTickBarMin"],
+  section[data-testid="stSidebar"] .stSlider [data-testid="stTickBarMax"] {
+    font-size:12px !important;
+  }
+
+  /* ── Info tooltip ───────────────────────────────────────────────────────── */
   .info-wrap { position:relative; display:inline-block; vertical-align:middle; margin-left:5px; }
   .info-btn {
     display:inline-flex; align-items:center; justify-content:center;
-    width:15px; height:15px; border-radius:50%;
+    width:17px; height:17px; border-radius:50%;
     background:rgba(77,166,255,.18); border:1px solid rgba(77,166,255,.4);
-    color:#4da6ff; font-size:9px; font-weight:700; font-family:var(--mono);
-    cursor:pointer; line-height:1; user-select:none; flex-shrink:0;
-    transition:background .15s, border-color .15s;
+    color:#4da6ff; font-size:10px; font-weight:700;
+    cursor:pointer; line-height:1; user-select:none;
   }
-  .info-btn:hover, .info-wrap:focus-within .info-btn {
-    background:rgba(77,166,255,.35); border-color:#4da6ff;
-  }
+  .info-btn:hover { background:rgba(77,166,255,.35); border-color:#4da6ff; }
   .info-tip {
     display:none; position:absolute; z-index:99999;
     bottom:calc(100% + 10px); left:50%; transform:translateX(-50%);
-    width:480px; background:#080c18; border:1px solid #1e2840;
+    width:480px; background:#111827; border:1px solid #2a3550;
     border-radius:10px; overflow:hidden;
     box-shadow:0 12px 48px rgba(0,0,0,.75);
     pointer-events:none;
   }
-  /* table header row */
   .tip-head {
     display:grid; grid-template-columns:110px 1fr 1fr 1fr;
-    background:#0d1020; border-bottom:1px solid #1e2840;
-    padding:7px 12px; gap:10px;
-    font-family:var(--mono); font-size:9px; font-weight:700;
-    color:#3d4d6a; text-transform:uppercase; letter-spacing:.1em;
+    background:#1a2235; border-bottom:1px solid #2a3550;
+    padding:8px 14px; gap:10px;
+    font-size:11px; font-weight:700; color:#5a6a8a;
+    text-transform:uppercase; letter-spacing:.1em;
   }
-  /* table body row */
   .tip-body {
     display:grid; grid-template-columns:110px 1fr 1fr 1fr;
-    padding:12px 12px; gap:10px;
-    font-family:var(--mono); font-size:10.5px; color:#d4ddf5; line-height:1.55;
+    padding:14px 14px; gap:10px;
+    font-size:12px; color:#e8edf8; line-height:1.55;
   }
   .tip-term  { font-weight:700; color:#4da6ff; }
-  .tip-expl  { color:#d4ddf5; }
+  .tip-expl  { color:#e8edf8; }
   .tip-form  { color:#a78bfa; white-space:pre-wrap; word-break:break-word; }
-  .tip-note  { color:#7a8aaa; }
-  /* caret */
+  .tip-note  { color:#9aa5c0; }
   .info-tip::after {
     content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
-    border:7px solid transparent; border-top-color:#1e2840;
+    border:7px solid transparent; border-top-color:#2a3550;
   }
   .info-wrap:hover .info-tip,
   .info-wrap:focus-within .info-tip { display:block; }
-  /* edge-of-screen adjustments */
-  .info-wrap .info-tip.tip-left  { left:0;    transform:none; }
-  .info-wrap .info-tip.tip-right { left:auto; right:0; transform:none; }
-  /* label flex */
-  .qcard .qlabel { display:flex; align-items:center; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -185,7 +208,7 @@ _defs = dict(
     train_metrics={},
     fast_p=50, slow_p=200,
     start_date="2010-01-01",
-    pred_days=15, threshold=0.60, quality_min=0.35,
+    pred_days=15, threshold=0.60, quality_min=0.25,
 )
 for k, v in _defs.items():
     if k not in st.session_state:
@@ -196,10 +219,7 @@ for k, v in _defs.items():
 # ─────────────────────────────────────────────────────────────────────────────
 
 def get_listing_date(ticker):
-    """
-    Returns the earliest available date for a ticker from yfinance.
-    Used to ensure we never request data before the stock was listed.
-    """
+    """Returns the earliest available date for a ticker from yfinance."""
     try:
         info = yf.Ticker(ticker).history(period="max", auto_adjust=True)
         if info.empty: return None
@@ -209,31 +229,38 @@ def get_listing_date(ticker):
 
 def download_stock_data(ticker, start_date):
     try:
-        # Auto-detect listing date — never request data before IPO
-        listing = get_listing_date(ticker)
-        if listing is not None:
-            requested = pd.Timestamp(start_date).date()
-            effective_start = max(requested, listing)
-            # Require at least 300 bars after listing for indicators to warm up
-            # If listing is recent, effective_start will be close to listing date
-            start_date = str(effective_start)
-
         df = yf.download(ticker, start=start_date, progress=False, auto_adjust=True)
-        if df.empty: return None
+        if df is None or df.empty:
+            return None
+
+        # yfinance returns MultiIndex columns like ('Close','RELIANCE.NS') — flatten to just 'Close'
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
-        df.columns = [str(c).strip().title() for c in df.columns]
-        df = df[['Open','High','Low','Close','Volume']].copy()
-        df.index = pd.to_datetime(df.index)
-        if hasattr(df.index,'tz') and df.index.tz:
-            df.index = df.index.tz_localize(None)
-        df.sort_index(inplace=True); df.dropna(inplace=True)
 
-        # Tag the dataframe with listing info for UI display
-        df.attrs['listing_date'] = str(listing) if listing else 'unknown'
-        df.attrs['bars'] = len(df)
+        # Normalise column names to Title case
+        df.columns = [str(c).strip().title() for c in df.columns]
+
+        required = ['Open', 'High', 'Low', 'Close', 'Volume']
+        missing  = [c for c in required if c not in df.columns]
+        if missing:
+            return None
+
+        df = df[required].copy()
+        df.index = pd.to_datetime(df.index)
+        if hasattr(df.index, 'tz') and df.index.tz is not None:
+            df.index = df.index.tz_localize(None)
+        df.sort_index(inplace=True)
+        df.dropna(inplace=True)
+
+        if len(df) < 50:
+            return None
+
+        df.attrs['listing_date'] = str(df.index[0].date())
+        df.attrs['bars']         = len(df)
         return df
-    except: return None
+
+    except Exception:
+        return None
 
 
 def resample_weekly(df):
@@ -344,18 +371,27 @@ def engineer_features(df, fast_p=50, slow_p=200):
     d['rsi_change']       = d['rsi_14'].diff(5)
     d['rsi_slope']        = d['rsi_14'].diff(3)
     macd_df               = ta.macd(d['Close'], fast=12, slow=26, signal=9)
-    d['macd']             = macd_df['MACD_12_26_9']
-    d['macd_signal']      = macd_df['MACDs_12_26_9']
-    d['macd_hist']        = macd_df['MACDh_12_26_9']
+    if macd_df is not None and not macd_df.empty:
+        d['macd']         = macd_df.get('MACD_12_26_9',   pd.Series(0.0, index=d.index))
+        d['macd_signal']  = macd_df.get('MACDs_12_26_9',  pd.Series(0.0, index=d.index))
+        d['macd_hist']    = macd_df.get('MACDh_12_26_9',  pd.Series(0.0, index=d.index))
+    else:
+        d['macd'] = d['macd_signal'] = d['macd_hist'] = 0.0
     d['macd_hist_pct']    = d['macd_hist'] / (d['Close'] + 1e-9) * 100
     d['macd_hist_change'] = d['macd_hist_pct'].diff(3)
     d['macd_cross']       = ((d['macd'] > d['macd_signal']) &
                               (d['macd'].shift(1) <= d['macd_signal'].shift(1))).astype(int)
     stoch_df              = ta.stoch(d['High'], d['Low'], d['Close'])
-    d['stoch_k']          = stoch_df.iloc[:, 0]
-    d['stoch_d']          = stoch_df.iloc[:, 1]
-    d['stoch_cross']      = ((d['stoch_k'] > d['stoch_d']) &
-                              (d['stoch_k'].shift(1) <= d['stoch_d'].shift(1))).astype(int)
+    if stoch_df is not None and not stoch_df.empty:
+        # Use explicit column names — column order varies across pandas_ta versions
+        k_col = [c for c in stoch_df.columns if c.startswith('STOCHk')]
+        d_col = [c for c in stoch_df.columns if c.startswith('STOCHd')]
+        d['stoch_k'] = stoch_df[k_col[0]] if k_col else 50.0
+        d['stoch_d'] = stoch_df[d_col[0]] if d_col else 50.0
+    else:
+        d['stoch_k'] = d['stoch_d'] = 50.0
+    d['stoch_cross'] = ((d['stoch_k'] > d['stoch_d']) &
+                         (d['stoch_k'].shift(1) <= d['stoch_d'].shift(1))).astype(int)
     try:
         cci = ta.cci(d['High'], d['Low'], d['Close'], length=20)
         d['cci'] = cci if cci is not None else 0.0
@@ -366,10 +402,17 @@ def engineer_features(df, fast_p=50, slow_p=200):
     except: d['willr'] = -50.0
 
     # ── Trend strength ────────────────────────────────────────────────────────
-    adx_df          = ta.adx(d['High'], d['Low'], d['Close'], length=14)
-    d['adx']        = adx_df.iloc[:, 0]
-    d['dmp']        = adx_df.iloc[:, 1]
-    d['dmn']        = adx_df.iloc[:, 2]
+    adx_df = ta.adx(d['High'], d['Low'], d['Close'], length=14)
+    if adx_df is not None and not adx_df.empty:
+        # Explicit column names — ADX_14, DMP_14, DMN_14 (ADXR_14_2 also present, skip it)
+        adx_col = [c for c in adx_df.columns if c.startswith('ADX_')]
+        dmp_col = [c for c in adx_df.columns if c.startswith('DMP_')]
+        dmn_col = [c for c in adx_df.columns if c.startswith('DMN_')]
+        d['adx'] = adx_df[adx_col[0]] if adx_col else 20.0
+        d['dmp'] = adx_df[dmp_col[0]] if dmp_col else 20.0
+        d['dmn'] = adx_df[dmn_col[0]] if dmn_col else 20.0
+    else:
+        d['adx'] = d['dmp'] = d['dmn'] = 20.0
     d['di_diff']    = d['dmp'] - d['dmn']
     d['fast_slope'] = d['ema_fast'].diff(5) / 5
     d['slow_slope'] = d['ema_slow'].diff(5) / 5
@@ -430,9 +473,13 @@ def engineer_features(df, fast_p=50, slow_p=200):
     # ── Near-cross score (continuous 0–1 convergence feature) ─────────────────
     # 1.0 = gap tiny AND closing fast (cross imminent)
     # 0.0 = gap wide AND diverging (no cross coming)
+    # Adaptive proximity: uses rolling 60-bar median of |gap| as normaliser
+    # so the score is relative to the stock's own gap history, not a fixed 5% threshold.
     gap_abs         = d['ema_gap_pct'].abs()
+    gap_median60    = gap_abs.rolling(60, min_periods=20).median().fillna(gap_abs)
     gap_close       = -d['ema_gap_pct'] * d['gap_velocity']
-    gap_proximity   = np.clip(1.0 - gap_abs / 5.0, 0, 1)
+    # Proximity: 1 when gap is below its own 60-bar median (relatively tight)
+    gap_proximity   = np.clip(1.0 - gap_abs / (gap_median60 * 2.0 + 1e-9), 0, 1)
     gap_convergence = np.clip(gap_close / (gap_abs + 1e-9), 0, 1)
     d['near_cross_score'] = 0.5 * gap_proximity + 0.5 * gap_convergence
 
@@ -445,8 +492,8 @@ FEATURE_COLS = [
     # ── EMA gap features — NO binary state, only gap magnitude & velocity ──────
     # ema_gap_pct: negative = below (DC territory), positive = above (GC territory)
     # The model learns from the GAP CLOSING, not from "already crossed"
-    'ema_gap_pct','gap_velocity_5','gap_velocity_10',
-    'gap_change','gap_acceleration',          # PHASE 3: convergence features
+    'ema_gap_pct','gap_velocity','gap_velocity_5','gap_velocity_10',
+    'gap_acceleration',               # 2nd derivative of gap (convergence acceleration)
     'gap_to_cross','gap_accel','convergence_speed','gap_zscore',
     # Returns
     'return_1','return_5','return_10','return_20',
@@ -466,7 +513,9 @@ FEATURE_COLS = [
     # MTF
     'mtf_bull','mtf_gap_pct','monthly_bull',
     # Regime — dc_age_norm uses event-based counter (no state leakage)
-    'price_range_20','dc_age_norm','hurst','hist_gc_success',
+    # NOTE: hist_gc_success removed — uses forward-looking shift(-20) which is
+    # circular when used as a training feature for predicting future GCs.
+    'price_range_20','dc_age_norm','hurst',
     # Near-cross proximity and convergence gate
     'near_cross_score',
     # Quality
@@ -657,43 +706,70 @@ def train_days_regressor(X_rows, y_days_raw):
     """
     Model C: XGBRegressor on raw days-to-GC (capped at 60; 999 = no upcoming GC).
     Only trained on rows where a future GC exists within 60 bars.
-    Output: predicted trading days until next Golden Cross.
+    Uses early stopping on a 20% validation split to prevent overfitting.
     """
     mask = y_days_raw < 999
     X_d, y_d = X_rows[mask], y_days_raw[mask]
-    if len(y_d) < 30: return None
+    if len(y_d) < 50: return None
+
+    # Chronological 80/20 split for early stopping (no shuffle — time series)
+    split = int(len(X_d) * 0.8)
+    X_tr, X_val = X_d.iloc[:split], X_d.iloc[split:]
+    y_tr, y_val = y_d[:split],       y_d[split:]
+    if len(y_val) < 10:
+        X_tr, y_tr = X_d, y_d
+        X_val, y_val = X_d.iloc[-20:], y_d[-20:]
+
     model = XGBRegressor(
-        n_estimators=200, max_depth=5, learning_rate=0.05,
+        n_estimators=500, max_depth=4, learning_rate=0.03,
         subsample=0.8, colsample_bytree=0.75,
-        reg_alpha=0.1, reg_lambda=1.0, random_state=42,
-        tree_method='hist', n_jobs=-1,
+        reg_alpha=0.2, reg_lambda=2.0,
+        min_child_weight=10,
+        random_state=42, tree_method='hist', n_jobs=-1,
+        early_stopping_rounds=30,
+        eval_metric='mae',
     )
-    model.fit(X_d, y_d)
+    model.fit(X_tr, y_tr,
+              eval_set=[(X_val, y_val)],
+              verbose=False)
     return model
 
 
 def train_recall_model(X_train, y_train):
     """
-    Model B: High-recall ensemble. 2× scale_pos_weight catches more GC opportunities.
-    Combined with Model A (high precision) for dual-confirmation signals.
+    Model B: Maximum-recall ensemble.
+    Uses 5× scale_pos_weight + low min_child_weight to catch as many GC events as possible.
+    Precision will be lower — combined with Model A for dual-confirmation signals.
+    Used standalone at low threshold for recall-optimized backtest evaluation.
     """
     n_pos = int((y_train == 1).sum()); n_neg = int((y_train == 0).sum())
-    spw   = (n_neg / n_pos) * 2.0 if n_pos > 0 else 2.0
+    spw   = (n_neg / n_pos) * 5.0 if n_pos > 0 else 5.0   # 5× — aggressive recall
 
     m_xgb = XGBClassifier(
-        n_estimators=200, max_depth=4, learning_rate=0.08,
-        scale_pos_weight=spw, subsample=0.8, colsample_bytree=0.75,
-        min_child_weight=5, gamma=0.1, reg_alpha=0.1, reg_lambda=1.0,
-        random_state=99, eval_metric='logloss', n_jobs=-1, tree_method='hist',
+        n_estimators=300, max_depth=5, learning_rate=0.05,
+        scale_pos_weight=spw, subsample=0.85, colsample_bytree=0.80,
+        min_child_weight=3, gamma=0.05, reg_alpha=0.05, reg_lambda=0.5,
+        random_state=99, eval_metric='aucpr',   # optimize PR-AUC for imbalanced
+        n_jobs=-1, tree_method='hist',
     )
     m_xgb.fit(X_train, y_train)
+
     m_rf = RandomForestClassifier(
-        n_estimators=100, max_depth=8, min_samples_leaf=10,
-        max_features='sqrt', class_weight='balanced_subsample',
+        n_estimators=200, max_depth=12, min_samples_leaf=5,
+        max_features='sqrt', class_weight={0: 1, 1: 5},   # 5× weight on positives
         random_state=99, n_jobs=-1,
     )
     m_rf.fit(X_train, y_train)
-    return [m_xgb, m_rf]
+
+    # Third model: XGBoost with focal-loss-like behaviour via high pos weight
+    m_xgb2 = XGBClassifier(
+        n_estimators=200, max_depth=4, learning_rate=0.08,
+        scale_pos_weight=spw * 1.5, subsample=0.8, colsample_bytree=0.75,
+        min_child_weight=2, gamma=0.0, reg_alpha=0.0, reg_lambda=0.3,
+        random_state=77, eval_metric='aucpr', n_jobs=-1, tree_method='hist',
+    )
+    m_xgb2.fit(X_train, y_train)
+    return [m_xgb, m_rf, m_xgb2]
 
 
 def ensemble_predict_proba(models, X):
@@ -786,21 +862,21 @@ def backtest_strategy(df_feat, probs_gc, probs_dc,
             trail_high = max(trail_high, cur_price)
 
             dyn_sl = max(stop_loss, -(atr_stop_mult * atr_val / 100.0))
-            # FIX 5: trailing stop — exit if price drops X% from peak
             trail_sl = (trail_high / entry_price - 1) - abs(stop_loss)
             trail_exit = trailing_stop and (tr < trail_sl) and (trail_high / entry_price - 1 > 0.03)
-            # FIX 5: exit at actual GC event (take profit at the cross)
             gc_exit = exit_at_gc and (gc_ev[i] == 1)
+            # DC exit only on very high DC probability (>0.75) — avoids premature exits
+            dc_exit = pd_arr[i] > 0.75
 
             should_exit = (tr <= dyn_sl or tr >= take_profit or
-                           pd_arr[i] > threshold or trail_exit or gc_exit)
+                           dc_exit or trail_exit or gc_exit)
             if should_exit:
                 exit_price = float(df['Open'].iloc[i+1]) if i+1 < n else cur_price
                 actual_ret = exit_price / entry_price - 1 - 2*total_cost
                 reason = ('GC_event' if gc_exit else
                           'trail_SL' if trail_exit else
-                          'SL' if tr <= dyn_sl else
-                          'TP' if tr >= take_profit else 'DC_signal')
+                          'SL'       if tr <= dyn_sl else
+                          'TP'       if tr >= take_profit else 'DC_signal')
                 trade_log.append({
                     'entry_bar': entry_bar, 'exit_bar': i+1,
                     'entry_date': dates_arr[entry_bar] if entry_bar >= 0 else None,
@@ -814,28 +890,21 @@ def backtest_strategy(df_feat, probs_gc, probs_dc,
 
         # ── Entry logic ───────────────────────────────────────────────────────
         elif pos == 0 and (i - last_exit) >= cooldown:
-            # COMPOSITE SIGNAL GATE (tightened v13 — reduces false positives):
-            # model_prob > threshold AND near_cross_ok (≥0.45) AND trend_ok (ADX > adx_min)
-            # near_cross_score raised from 0.30 → 0.45 to filter wide-gap signals
-            adx_v_entry  = float(df['adx'].iloc[i])          if 'adx'             in df.columns else 25.0
-            nc_v_entry   = float(df['near_cross_score'].iloc[i]) if 'near_cross_score' in df.columns else 0.5
-            trend_ok_entry  = adx_v_entry >= adx_min
-            # Raised threshold: 0.30 → 0.45 — cross must be genuinely imminent
-            near_ok_entry   = nc_v_entry  >= 0.45
-            # Core gate: model_prob > threshold AND near_cross AND trend_ok
-            composite_ok = (pg[i] >= threshold) and near_ok_entry and trend_ok_entry
-            # Model B optional confirmation
+            # SIMPLIFIED ENTRY: Model A OR Model B fires above their thresholds
+            # No hard ADX/near_cross gates — these are informational only
+            # The model already learned these patterns during training
+            sig_a = pg[i]   >= threshold
             sig_b = pg_b[i] >= recall_threshold
-            if composite_ok and sig_b:
+
+            if sig_a or sig_b:   # OR logic for entry — maximise opportunities
                 skip = False
 
-                # Additional filters: Hurst (persistence) and Price > MA200 (macro regime)
+                # Soft regime filter: only Hurst (mean-reverting markets are genuinely bad)
                 hurst_v_e = float(df['hurst'].iloc[i]) if 'hurst' in df.columns else 0.5
-                p200_v_e  = float(df['price_vs_ma200'].iloc[i]) if 'price_vs_ma200' in df.columns else 0.0
-                if hurst_v_e < hurst_min or p200_v_e <= 0.0:
+                if hurst_v_e < hurst_min:
                     skip = True; blocked_regime += 1
 
-                # FIX 4: EV filter
+                # EV filter
                 if not skip:
                     ev = pg[i] * avg_win - (1 - pg[i]) * avg_loss
                     if ev <= ev_min:
@@ -999,7 +1068,8 @@ def predict_single(ticker, models_gc, models_dc,
                    threshold, quality_min, prediction_days,
                    models_gc_recall=None, calibrator_gc_recall=None,
                    model_days_regressor=None,
-                   avg_win=0.11, avg_loss=0.05):
+                   avg_win=0.11, avg_loss=0.05,
+                   recall_threshold=0.40):
     df = download_stock_data(ticker, start_date)
     if df is None or len(df) < 300: return None, None
     df_feat = engineer_features(df, fast_p=fast_p, slow_p=slow_p)
@@ -1012,10 +1082,10 @@ def predict_single(ticker, models_gc, models_dc,
     prob_gc = float(apply_calibration(calibrator_gc, models_gc, X_latest)[0])
     prob_dc = float(apply_calibration(calibrator_dc, models_dc, X_latest)[0])
 
-    # Model B — high recall
+    # Model B — high recall (recall_threshold consistent with backtest)
     prob_gc_recall = float(ensemble_predict_proba(models_gc_recall, X_latest)[0]) \
                      if models_gc_recall else prob_gc
-    dual_confirm   = (prob_gc >= threshold) and (prob_gc_recall >= 0.45)
+    dual_confirm   = (prob_gc >= threshold) and (prob_gc_recall >= recall_threshold)
 
     q_gc = float(model_quality_gc.predict(X_latest)[0]) if model_quality_gc else 0.5
     q_dc = float(model_quality_dc.predict(X_latest)[0]) if model_quality_dc else 0.5
@@ -1029,6 +1099,15 @@ def predict_single(ticker, models_gc, models_dc,
     if model_days_regressor is not None:
         raw_days = float(model_days_regressor.predict(X_latest)[0])
         days_pred = max(1, int(round(np.clip(raw_days, 1, 60))))
+
+    # Timing string — always show days_pred if available, regardless of prob_gc
+    if days_pred is not None:
+        timing_str = f"~{days_pred} days"
+    elif not np.isnan(t_gc):
+        est = max(1, int(round((1.0 - t_gc) * prediction_days)))
+        timing_str = f"~{est} days"
+    else:
+        timing_str = "n/a"
 
     latest   = df_feat.iloc[-1]
     gc_model = prob_gc >= threshold
@@ -1080,15 +1159,6 @@ def predict_single(ticker, models_gc, models_dc,
         signal, stype = "WATCH — Moderate bearish setup", "caution"
     else:
         signal, stype = "NEUTRAL — No clear signal", "neutral"
-
-    # ── Timing string (prefer Model C, fall back to Model A norm) ─────────────
-    if days_pred is not None and prob_gc > 0.35:
-        timing_str = f"~{days_pred} days"
-    elif not np.isnan(t_gc) and prob_gc > 0.45:
-        est = max(1, int(round((1.0 - t_gc) * prediction_days)))
-        timing_str = f"~{est} days"
-    else:
-        timing_str = "n/a"
 
     # ── Expected Value ─────────────────────────────────────────────────────────
     ev = (prob_gc * avg_win) - ((1 - prob_gc) * avg_loss)
@@ -1607,13 +1677,13 @@ with st.sidebar:
     pred_days = st.slider("Prediction Window (days)", 5, 30, 15)
     n_splits  = st.slider("Walk-Forward Splits", 4, 12, 5 if fast_mode else 8)
 
-    st.markdown('<div class="sec-hdr">Signal Parameters</div>', unsafe_allow_html=True)
-    threshold   = st.slider("Model A Threshold (Precision)", 0.40, 0.85, 0.60, 0.05,
-                             help="High-precision threshold. Fewer signals, higher hit rate.")
-    recall_threshold = st.slider("Model B Threshold (Recall)", 0.30, 0.65, 0.40, 0.05,
-                             help="Lower threshold using recall-focused Model B. Catches more GC events.")
-    quality_min = st.slider("Min Quality Score", 0.0, 0.60, 0.35, 0.05,
-                             help="0 = use binary model only. >0 = quality gate active.")
+    st.markdown('<div class="sec-hdr">Signal Settings</div>', unsafe_allow_html=True)
+    threshold   = st.slider("High Confidence Level (Model A)", 0.25, 0.85, 0.55, 0.05,
+                             help="Higher = fewer but more reliable signals. Lower = more signals, more misses caught.")
+    recall_threshold = st.slider("Recall Threshold (Model B)", 0.20, 0.60, 0.35, 0.05,
+                             help="Model B fires at this threshold. Lower = catches more GC events.")
+    quality_min = st.slider("Minimum Quality Score", 0.0, 0.60, 0.25, 0.05,
+                             help="Filter out low-quality signals. 0 = no filter.")
 
     st.markdown('<div class="sec-hdr">Monte Carlo</div>', unsafe_allow_html=True)
     mc_days = st.slider("Forecast Days", 10, 120, 60)
@@ -1626,10 +1696,10 @@ with st.sidebar:
     transaction_cost= st.slider("Commission (% each side)", 0.0, 0.3, 0.1, 0.01) / 100
     slippage        = st.slider("Slippage (% each side)", 0.0, 0.2, 0.05, 0.01) / 100
     st.markdown('<div class="sec-hdr">Regime & Risk Filters</div>', unsafe_allow_html=True)
-    adx_min_bt   = st.slider("Min ADX (regime filter)", 0, 35, 20,
-                              help="Skip trades when ADX < this. 0 = disabled.")
-    hurst_min_bt = st.slider("Min Hurst (regime filter)", 0.30, 0.60, 0.45, 0.05,
-                              help="Skip trades when Hurst < this. 0.30 = disabled.")
+    adx_min_bt   = st.slider("Min ADX (regime filter)", 0, 35, 0,
+                              help="Skip trades when ADX < this. 0 = disabled (recommended).")
+    hurst_min_bt = st.slider("Min Hurst (regime filter)", 0.30, 0.60, 0.35, 0.05,
+                              help="Skip trades when Hurst < this. 0.30 = nearly disabled.")
     ev_filter    = st.checkbox("EV Filter (only trade EV > 0)", value=True,
                                help="Skip trades where Expected Value ≤ 0.")
     exit_at_gc   = st.checkbox("Exit at GC Event", value=True,
@@ -1685,18 +1755,41 @@ if train_btn:
                 log(f"  ✗ {tk}: skipped (insufficient history)")
             prog.progress(5+int(17*(i+1)/len(train_tickers)), f"Downloading...")
 
-        log(f"\n📊 {len(all_data)} tickers OK")
+        log(f"\n📊 {len(all_data)} tickers downloaded OK")
+        if len(all_data) == 0:
+            raise ValueError(
+                "No tickers downloaded successfully. "
+                "Check your internet connection and that the Training Start Date is not too recent."
+            )
         prog.progress(22, "Engineering features...")
         log(f"\n⚙  Feature engineering ({len(FEATURE_COLS)} features, no lookahead)...")
         all_labeled = []
+        failed_tickers = []
         for i, (tk, df_raw) in enumerate(all_data.items()):
             try:
                 df_feat    = engineer_features(df_raw, fast_p=fast_p, slow_p=slow_p)
+                if len(df_feat) < 300:
+                    log(f"  ✗ {tk}: too few rows after feature engineering ({len(df_feat)})")
+                    continue
                 df_labeled = create_targets(df_feat, n_days=pred_days)
+                if len(df_labeled) < 100:
+                    log(f"  ✗ {tk}: too few labeled rows ({len(df_labeled)})")
+                    continue
                 df_labeled['ticker'] = tk
                 all_labeled.append(df_labeled)
-            except Exception as e: log(f"  ✗ {tk}: {e}")
+                log(f"  ✓ {tk}: {len(df_labeled):,} rows")
+            except Exception as e:
+                failed_tickers.append(tk)
+                log(f"  ✗ {tk}: {type(e).__name__}: {e}")
             prog.progress(22+int(14*(i+1)/len(all_data)), f"Features: {tk}...")
+
+        if len(all_labeled) == 0:
+            raise ValueError(
+                f"No tickers produced valid training data. "
+                f"Failed tickers: {failed_tickers[:10]}. "
+                f"Check that your training tickers are valid NSE/BSE symbols and have sufficient history. "
+                f"Try extending the Training Start Date further back (e.g. 2005-01-01)."
+            )
 
         df_combined = pd.concat(all_labeled, axis=0)
         # ── FIX BUG 3: sort strictly by date so walk-forward is temporal ─────
@@ -1918,6 +2011,7 @@ with tab_predict:
                 model_days_regressor=st.session_state.model_days_regressor,
                 avg_win=st.session_state.get("bt_avg_win", 0.11),
                 avg_loss=abs(st.session_state.get("bt_avg_loss", -0.05)),
+                recall_threshold=recall_threshold,
             )
         if result is None:
             st.error(f"Could not fetch data for **{ticker}**. Verify the symbol.")
@@ -2058,21 +2152,21 @@ with tab_predict:
         ev_color   = "#00e5a0" if result['ev'] > 0 else "#f04060"
 
         st.markdown(f"""
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0;">
-          <div style="background:#080c18;border:2px solid {days_color};border-radius:10px;padding:20px 24px;">
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:#3d4d6a;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;">Expected GC In</div>
-            <div style="font-size:36px;font-weight:700;color:{days_color};line-height:1;">{days_disp}</div>
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:#7a8aaa;margin-top:6px;">Model C (XGBRegressor on raw days)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0;">
+          <div style="background:#111827;border:2px solid {days_color};border-radius:12px;padding:24px 28px;">
+            <div style="font-size:14px;color:#5a6a8a;font-weight:600;margin-bottom:8px;">Golden Cross Expected In</div>
+            <div style="font-size:42px;font-weight:700;color:{days_color};line-height:1;">{days_disp}</div>
+            <div style="font-size:13px;color:#9aa5c0;margin-top:8px;">AI prediction based on market patterns</div>
           </div>
-          <div style="background:#080c18;border:2px solid {conf_color};border-radius:10px;padding:20px 24px;">
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:#3d4d6a;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;">GC Probability · Confidence</div>
-            <div style="font-size:36px;font-weight:700;color:{conf_color};line-height:1;">{result['prob_gc']:.1%}</div>
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:{conf_color};margin-top:6px;">Confidence: {conf_label} &nbsp;·&nbsp; Model B: {result['prob_gc_recall']:.1%}</div>
+          <div style="background:#111827;border:2px solid {conf_color};border-radius:12px;padding:24px 28px;">
+            <div style="font-size:14px;color:#5a6a8a;font-weight:600;margin-bottom:8px;">Confidence Level</div>
+            <div style="font-size:42px;font-weight:700;color:{conf_color};line-height:1;">{result['prob_gc']:.0%}</div>
+            <div style="font-size:13px;color:{conf_color};margin-top:8px;">{conf_label} confidence · Secondary model: {result['prob_gc_recall']:.0%}</div>
           </div>
-          <div style="background:#080c18;border:2px solid {ev_color};border-radius:10px;padding:20px 24px;">
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:#3d4d6a;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;">Expected Value · Position Size</div>
-            <div style="font-size:36px;font-weight:700;color:{ev_color};line-height:1;">{result['ev']:+.2%}</div>
-            <div style="font-family:'JetBrains Mono';font-size:10px;color:#7a8aaa;margin-top:6px;">EV = P×win − (1−P)×loss &nbsp;·&nbsp; Size: {result['pos_size']:.1%} capital</div>
+          <div style="background:#111827;border:2px solid {ev_color};border-radius:12px;padding:24px 28px;">
+            <div style="font-size:14px;color:#5a6a8a;font-weight:600;margin-bottom:8px;">Expected Profit</div>
+            <div style="font-size:42px;font-weight:700;color:{ev_color};line-height:1;">{result['ev']:+.1%}</div>
+            <div style="font-size:13px;color:#9aa5c0;margin-top:8px;">Recommended position: {result['pos_size']:.1%} of capital</div>
           </div>
         </div>
         """, unsafe_allow_html=True)
@@ -2092,11 +2186,16 @@ with tab_predict:
                 f"raw ensemble: {result['raw_gc']:.1%}" + prob_bar(result['prob_gc'], gc_col),
                 gc_col), unsafe_allow_html=True)
         with c2:
+            # Show regime status instead of DC probability — DC prob is redundant when stock is in DC
+            is_gc_state = result['ema_gap_pct'] > 0
+            regime_color = "#00c97a" if is_gc_state else "#e84060"
+            regime_label = "Golden Cross" if is_gc_state else "Death Cross"
+            dc_age_str   = f"{result['dc_age']} bars in DC" if not is_gc_state else "GC active"
             st.markdown(qcard(
-                "DC Probability",
-                f"{result['prob_dc']:.1%}",
-                f"raw ensemble: {result['raw_dc']:.1%}" + prob_bar(result['prob_dc'], dc_col),
-                dc_col), unsafe_allow_html=True)
+                "Current Regime",
+                regime_label,
+                f"{dc_age_str} · gap {result['ema_gap_pct']:+.1f}%",
+                regime_color), unsafe_allow_html=True)
         with c3:
             qv = result["quality_gc"]
             st.markdown(qcard(
@@ -2532,15 +2631,19 @@ with tab_backtest:
     </div>
     """, unsafe_allow_html=True)
 
-    bt_c1, bt_c2, bt_c3 = st.columns([3,1,1])
+    bt_c1, bt_c2, bt_c3, bt_c4 = st.columns([3,1,1,1])
     with bt_c1:
         bt_ticker = st.text_input("Ticker",
             placeholder="e.g. RELIANCE.NS   HDFCBANK.NS   ^NSEI",
             label_visibility="collapsed", key="bt_ticker")
     with bt_c2:
-        bt_horizon = st.selectbox("Prediction Window (days)", [5, 10, 15, 20, 30], index=2,
+        bt_horizon = st.selectbox("Prediction Window (days)", [30, 60, 90], index=0,
                                    format_func=lambda x: f"{x}d", key="bt_horizon")
     with bt_c3:
+        bt_recall_thr = st.selectbox("Recall Threshold", [0.25, 0.30, 0.35, 0.40, 0.45, 0.50],
+                                      index=2, format_func=lambda x: f"{x:.0%}", key="bt_recall_thr",
+                                      help="Lower = catches more GC events (higher recall)")
+    with bt_c4:
         bt_btn = st.button("Run Backtest →", type="primary", use_container_width=True)
 
     if bt_btn and bt_ticker.strip():
@@ -2577,7 +2680,7 @@ with tab_backtest:
                 ) if st.session_state.models_gc_recall else probs_gc
 
                 y_pred_a    = (probs_gc   >= threshold).astype(int)        # Model A: high precision
-                y_pred_b    = (probs_gc_b >= recall_threshold).astype(int) # Model B: high recall
+                y_pred_b    = (probs_gc_b >= bt_recall_thr).astype(int)    # Model B: recall-optimized threshold
                 y_pred_ab   = np.clip(y_pred_a + y_pred_b, 0, 1)           # Combined: A OR B
                 y_pred      = y_pred_a   # default for existing code
                 y_true      = df_eval["target_gc"].values
@@ -2771,8 +2874,8 @@ with tab_backtest:
                     </div>
                     """, unsafe_allow_html=True)
 
-                # ── Model A vs B vs Combined comparison ────────────────────────
-                st.markdown('<div class="sec-hdr">Model Comparison — A (Precision) vs B (Recall) vs A AND B (recommended) vs A OR B (reference)</div>',
+                # ── Recall improvement analysis ────────────────────────────────
+                st.markdown('<div class="sec-hdr">Recall Analysis — Find the threshold that catches the most GC events</div>',
                             unsafe_allow_html=True)
 
                 def _cm(y_p, y_t):
@@ -2784,48 +2887,73 @@ with tab_backtest:
                     f1s  = 2*prec*rec/(prec+rec+1e-9)
                     return tp, fp, fn, tn, prec, rec, f1s
 
+                # Sweep thresholds on BOTH Model A and Model B
+                sweep_rows = []
+                for thr in [0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70]:
+                    yp_a = (probs_gc   >= thr).astype(int)
+                    yp_b = (probs_gc_b >= thr).astype(int)
+                    tp_a_,fp_a_,fn_a_,tn_a_,pr_a_,rc_a_,f1_a_ = _cm(yp_a, y_true)
+                    tp_b_,fp_b_,fn_b_,tn_b_,pr_b_,rc_b_,f1_b_ = _cm(yp_b, y_true)
+                    sweep_rows.append({
+                        "Threshold": f"{thr:.0%}",
+                        "A: TP": tp_a_, "A: FN missed": fn_a_,
+                        "A: Recall": f"{rc_a_:.1%}", "A: Precision": f"{pr_a_:.1%}", "A: F1": f"{f1_a_:.3f}",
+                        "B: TP": tp_b_, "B: FN missed": fn_b_,
+                        "B: Recall": f"{rc_b_:.1%}", "B: Precision": f"{pr_b_:.1%}", "B: F1": f"{f1_b_:.3f}",
+                        "★": "← current" if abs(thr - threshold) < 0.01 else ""
+                    })
+                sweep_df = pd.DataFrame(sweep_rows)
+                st.dataframe(sweep_df, hide_index=True, use_container_width=True)
+
+                best_f1_row  = max(sweep_rows, key=lambda r: float(r['A: F1']))
+                best_rec_row = max(sweep_rows, key=lambda r: float(r['A: Recall'].strip('%'))/100)
+                best_b_row   = max(sweep_rows, key=lambda r: float(r['B: Recall'].strip('%'))/100)
+                st.markdown(
+                    f'<div class="warn-box" style="border-color:rgba(0,201,122,.4);color:#00c97a;">'
+                    f'📊 <b>Model A — Best F1</b>: threshold {best_f1_row["Threshold"]} → '
+                    f'Recall {best_f1_row["A: Recall"]}, Precision {best_f1_row["A: Precision"]}, F1 {best_f1_row["A: F1"]} &nbsp;|&nbsp; '
+                    f'<b>Model B — Max Recall</b>: threshold {best_b_row["Threshold"]} → '
+                    f'Recall {best_b_row["B: Recall"]} (catches most GC events)</div>',
+                    unsafe_allow_html=True)
+
+                # Model A vs B vs AND vs OR
+                st.markdown('<div class="sec-hdr">Model Comparison — A (Precision) vs B (Recall) vs A AND B vs A OR B</div>',
+                            unsafe_allow_html=True)
+
                 tp_a,fp_a,fn_a,tn_a,prec_a,rec_a,f1_a = _cm(y_pred_a,  y_true)
                 tp_b,fp_b,fn_b,tn_b,prec_b,rec_b,f1_b = _cm(y_pred_b,  y_true)
-                # AND logic: both must agree — keeps precision high, improves recall vs A alone
                 y_pred_and = (y_pred_a & y_pred_b).astype(int)
-                # OR logic: shown for reference only
                 y_pred_or  = np.clip(y_pred_a + y_pred_b, 0, 1)
                 tp_c,fp_c,fn_c,tn_c,prec_c,rec_c,f1_c = _cm(y_pred_and, y_true)
                 tp_o,fp_o,fn_o,tn_o,prec_o,rec_o,f1_o = _cm(y_pred_or,  y_true)
 
+                # Best single-model recall row
+                y_pred_b_low = (probs_gc_b >= 0.25).astype(int)
+                tp_bl,fp_bl,fn_bl,tn_bl,prec_bl,rec_bl,f1_bl = _cm(y_pred_b_low, y_true)
+
                 comp_df = pd.DataFrame({
                     "Model":     [
-                        "A — Precision only",
-                        "B — Recall only",
-                        "✅ A AND B (recommended)",
-                        "A OR B (reference)",
+                        "A — Precision",
+                        f"B — Recall (thr={recall_threshold:.0%})",
+                        f"B — Max Recall (thr=25%)",
+                        "✅ A AND B",
+                        "A OR B",
                     ],
-                    "Threshold": [
-                        f"A≥{threshold:.0%}",
-                        f"B≥{recall_threshold:.0%}",
-                        f"A≥{threshold:.0%} AND B≥{recall_threshold:.0%}",
-                        f"A≥{threshold:.0%} OR B≥{recall_threshold:.0%}",
-                    ],
-                    "TP ✓":      [tp_a, tp_b, tp_c, tp_o],
-                    "FP ✗":      [fp_a, fp_b, fp_c, fp_o],
-                    "FN missed": [fn_a, fn_b, fn_c, fn_o],
-                    "Precision": [f"{prec_a:.1%}", f"{prec_b:.1%}", f"{prec_c:.1%}", f"{prec_o:.1%}"],
-                    "Recall":    [f"{rec_a:.1%}",  f"{rec_b:.1%}",  f"{rec_c:.1%}",  f"{rec_o:.1%}"],
-                    "F1":        [f"{f1_a:.3f}",   f"{f1_b:.3f}",   f"{f1_c:.3f}",   f"{f1_o:.3f}"],
+                    "TP ✓":      [tp_a, tp_b, tp_bl, tp_c, tp_o],
+                    "FP ✗":      [fp_a, fp_b, fp_bl, fp_c, fp_o],
+                    "FN missed": [fn_a, fn_b, fn_bl, fn_c, fn_o],
+                    "Precision": [f"{prec_a:.1%}", f"{prec_b:.1%}", f"{prec_bl:.1%}", f"{prec_c:.1%}", f"{prec_o:.1%}"],
+                    "Recall":    [f"{rec_a:.1%}",  f"{rec_b:.1%}",  f"{rec_bl:.1%}",  f"{rec_c:.1%}",  f"{rec_o:.1%}"],
+                    "F1":        [f"{f1_a:.3f}",   f"{f1_b:.3f}",   f"{f1_bl:.3f}",   f"{f1_c:.3f}",   f"{f1_o:.3f}"],
                 })
                 st.dataframe(comp_df, hide_index=True, use_container_width=True)
-
-                # Highlight AND vs OR tradeoff
-                fp_saved  = fp_o - fp_c   # false alarms avoided by AND vs OR
-                fn_cost   = fn_c - fn_o   # extra misses from AND vs OR
-                rec_gain  = rec_c - rec_a # recall gain of AND vs A alone
                 st.markdown(
-                    f'<div class="warn-box" style="border-color:rgba(0,229,160,.4);color:#00e5a0;">'
-                    f'✅ <b>A AND B</b> vs A alone: recall {rec_gain:+.1%}, '
-                    f'FN {fn_a}→{fn_c} ({fn_a-fn_c:+d} recovered), '
-                    f'FP {fp_a}→{fp_c} ({fp_c-fp_a:+d} added) &nbsp;|&nbsp; '
-                    f'<span style="color:#f5a623;">A OR B adds {fp_o-fp_a} extra FP vs only {fn_a-fn_o} fewer FN — '
-                    f'precision drops to {prec_o:.1%}</span></div>',
+                    f'<div class="warn-box" style="border-color:rgba(0,201,122,.4);color:#00c97a;">'
+                    f'💡 <b>To improve recall</b>: lower the "Recall Threshold" dropdown above or the "High Confidence Level" slider in the sidebar. '
+                    f'At 25% threshold, Model A catches {sweep_rows[0]["A: TP"]} GC events '
+                    f'(vs {tp_a} at {threshold:.0%}). '
+                    f'Model B at 25% catches {sweep_rows[0]["B: TP"]} events. '
+                    f'Use the threshold sweep table above to find your optimal precision/recall balance.</div>',
                     unsafe_allow_html=True)
 
                 # ── Strategy performance (equity backtest) ──────────────────────
@@ -3153,6 +3281,7 @@ if False:
                     models_gc_recall=st.session_state.models_gc_recall,
                     calibrator_gc_recall=st.session_state.calibrator_gc_recall,
                     model_days_regressor=st.session_state.model_days_regressor,
+                    recall_threshold=recall_threshold,
                 )
                 if r: results_list.append(r)
             except: pass
