@@ -49,6 +49,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, average_precision_score
 import datetime
+import joblib
+import os
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PAGE CONFIG
@@ -2089,7 +2091,26 @@ with st.sidebar:
                                help="Trail stop below peak price during trade.")
 
     st.markdown("---")
-    train_btn = st.button("🚀 Train Models", type="primary", use_container_width=True)
+
+    # ── Load saved model ──────────────────────────────────────────────────────
+    MODEL_PATH = "gc_model.joblib"
+    if os.path.exists(MODEL_PATH):
+        size_mb = os.path.getsize(MODEL_PATH) / 1e6
+        st.markdown(f'<div style="font-size:13px;color:#9aa5c0;margin-bottom:6px;">💾 Saved model found ({size_mb:.1f} MB)</div>', unsafe_allow_html=True)
+        if st.button("⚡ Load Saved Model", use_container_width=True,
+                     help="Load previously trained model instantly — no retraining needed."):
+            try:
+                payload = joblib.load(MODEL_PATH)
+                st.session_state.update(payload)
+                st.session_state['models_trained'] = True
+                st.success("✅ Model loaded successfully!")
+                st.rerun()
+            except Exception as load_err:
+                st.error(f"Load failed: {load_err}")
+    else:
+        st.markdown('<div style="font-size:12px;color:#5a6a8a;margin-bottom:6px;">No saved model found — train first.</div>', unsafe_allow_html=True)
+
+    train_btn = st.button("🚀 Train Models (40 min)", type="primary", use_container_width=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2355,6 +2376,30 @@ if train_btn:
         ))
         prog.progress(100, "✅ Training complete")
         log(f"\n✅ Done! {len(FEATURE_COLS)} features · {len(splits)} folds · Platt-calibrated")
+
+        # ── Auto-save model to disk ───────────────────────────────────────────
+        MODEL_PATH = "gc_model.joblib"
+        try:
+            payload = dict(
+                models_gc=models_gc, models_dc=models_dc,
+                models_gc_recall=models_gc_recall,
+                model_quality_gc=model_quality_gc, model_quality_dc=model_quality_dc,
+                model_timing_gc=model_timing_gc,
+                model_days_regressor=model_days_regressor,
+                calibrator_gc=calibrator_gc, calibrator_dc=calibrator_dc,
+                calibrator_gc_recall=calibrator_gc_recall,
+                feature_cols=FEATURE_COLS, feature_importance=fi,
+                fast_p=fast_p, slow_p=slow_p, threshold=threshold,
+                quality_min=quality_min, start_date=str(start_date),
+                pred_days=pred_days,
+                train_metrics=st.session_state.train_metrics,
+            )
+            joblib.dump(payload, MODEL_PATH, compress=3)
+            size_mb = os.path.getsize(MODEL_PATH) / 1e6
+            log(f"💾 Model saved → {MODEL_PATH} ({size_mb:.1f} MB)")
+            st.success(f"✅ Model saved to **{MODEL_PATH}** ({size_mb:.1f} MB) — reload anytime without retraining.")
+        except Exception as save_err:
+            log(f"⚠ Save failed: {save_err}")
 
     except Exception as e:
         st.error(f"Training failed: {e}")
