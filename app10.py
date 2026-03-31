@@ -2349,7 +2349,7 @@ if train_btn:
             train_metrics=dict(
                 auc_gc=auc_gc, ap_gc=ap_gc, auc_dc=auc_dc,
                 brier_gc=brier_gc,
-                n_train=len(X_train), n_test=len(X_test),
+                n_train=len(X_train_filtered), n_test=len(X_test),
                 gc_events=int(gc_ev), n_folds=len(splits),
             ),
         ))
@@ -3116,27 +3116,12 @@ with tab_backtest:
 
                 # ── Model predictions on every bar ─────────────────────────────
                 # Use RAW ensemble for Model A (calibrator squashes to ~0.5 on single-ticker)
-                # Calibration was trained on multi-ticker data with sector features;
-                # single-ticker inference with zero sector features breaks the calibrator.
-                probs_gc     = ensemble_predict_proba(st.session_state.models_gc, X_eval)
-                probs_gc_cal = apply_calibration(
-                    st.session_state.calibrator_gc,
-                    st.session_state.models_gc, X_eval)
+                probs_gc   = ensemble_predict_proba(st.session_state.models_gc, X_eval)
 
-                # Model B (recall) predictions — raw ensemble, no calibration needed
+                # Model B (recall) predictions — raw ensemble
                 probs_gc_b = ensemble_predict_proba(
                     st.session_state.models_gc_recall, X_eval
                 ) if st.session_state.models_gc_recall else probs_gc
-
-                # ── Debug: show probability distribution ───────────────────────
-                st.markdown(f"""
-                <div class="warn-box" style="border-color:rgba(77,166,255,.3);color:#4da6ff;">
-                  📊 <b>Probability debug</b>: Model A raw max={probs_gc.max():.3f}
-                  mean={probs_gc.mean():.3f} &nbsp;|&nbsp;
-                  Model B max={probs_gc_b.max():.3f} mean={probs_gc_b.mean():.3f} &nbsp;|&nbsp;
-                  Threshold A={threshold:.0%} B={bt_recall_thr:.0%} &nbsp;|&nbsp;
-                  Signals A={(probs_gc>=threshold).sum()} B={(probs_gc_b>=bt_recall_thr).sum()}
-                </div>""", unsafe_allow_html=True)
 
                 y_pred_a  = (probs_gc   >= threshold).astype(int)
                 y_pred_b  = (probs_gc_b >= bt_recall_thr).astype(int)
